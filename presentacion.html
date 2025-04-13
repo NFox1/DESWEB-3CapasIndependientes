@@ -1,0 +1,165 @@
+<!-- presentacion.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de personas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+            cursor: pointer;
+        }
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+        }
+        .search-input {
+            width: 50%;
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Registro de personas</h2>
+        <input type="text" id="nombre" placeholder="Nombre">
+        <input type="text" id="dni" placeholder="DNI">
+        <input type="date" id="fechaNacimiento">
+        <input type="text" id="direccion" placeholder="Dirección">
+        <button onclick="agregarPersona()">Agregar</button>
+        
+        <!-- Buscador -->
+        <input type="text" id="buscador" class="search-input" placeholder="Buscar por nombre..." oninput="filtrarPersonas()">
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>DNI</th>
+                    <th>Fecha Nac.</th>
+                    <th>Dirección</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tablaPersonas">
+            </tbody>
+        </table>
+    </div>
+    <script>
+        const API_URL = "http://localhost:3000/api/personas"; // Cambiar según el backend
+        let personas = []; // Para almacenar las personas
+
+        async function obtenerPersonas() {
+            const response = await fetch(API_URL);
+            personas = await response.json();
+            actualizarTabla(personas);
+        }
+
+        async function agregarPersona() {
+            let persona = {
+                nombre: document.getElementById('nombre').value,
+                dni: document.getElementById('dni').value,
+                fechaNacimiento: document.getElementById('fechaNacimiento').value,
+                direccion: document.getElementById('direccion').value
+            };
+            
+            if (persona.nombre && persona.dni && persona.fechaNacimiento && persona.direccion) {
+                await fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(persona)
+                });
+                obtenerPersonas();
+                limpiarCampos();
+            } else {
+                alert("Todos los campos son obligatorios.");
+            }
+        }
+
+        async function eliminarPersona(id) {
+            if (confirm("¿Estás seguro de que deseas eliminar esta persona?")) {
+                await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+                obtenerPersonas();
+            }
+        }
+
+        function actualizarTabla(personas) {
+            let tbody = document.getElementById('tablaPersonas');
+            tbody.innerHTML = '';
+            personas.forEach((persona) => {
+                let fila = `<tr>
+                    <td>${persona.nombre}</td>
+                    <td>${persona.dni}</td>
+                    <td>${persona.fechaNacimiento}</td>
+                    <td>${persona.direccion}</td>
+                    <td><button class='delete-btn' onclick='eliminarPersona(${persona.id})'>Eliminar</button></td>
+                </tr>`;
+                tbody.innerHTML += fila;
+            });
+        }
+
+        function limpiarCampos() {
+            document.getElementById('nombre').value = '';
+            document.getElementById('dni').value = '';
+            document.getElementById('fechaNacimiento').value = '';
+            document.getElementById('direccion').value = '';
+        }
+
+        function filtrarPersonas() {
+            const busqueda = document.getElementById('buscador').value.toLowerCase();
+            const personasFiltradas = personas.filter(persona =>
+                persona.nombre.toLowerCase().includes(busqueda)
+            );
+            actualizarTabla(personasFiltradas);
+        }
+
+        document.addEventListener("DOMContentLoaded", obtenerPersonas);
+    </script>
+</body>
+</html>

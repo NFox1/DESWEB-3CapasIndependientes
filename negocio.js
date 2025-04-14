@@ -6,9 +6,9 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-const db = new Database('personas.db'); // Crea o abre la base de datos local
+const db = new Database('personas.db'); // Abre la base de datos local
 
-// Crear tabla si no existe
+// Crea tabla si no existe
 db.exec(`
   CREATE TABLE IF NOT EXISTS personas (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

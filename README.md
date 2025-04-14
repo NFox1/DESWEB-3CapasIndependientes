@@ -8,5 +8,6 @@ Se desarrolló una API REST _(negocio.js)_ como *capa de negocio*. Esta API REST
 
 _Si bien estaríamos usando la capa de negocio para generar *personas.db*_, este archivo puede ser reemplazado por uno igual, por lo que podríamos considerar que esta *capa de datos* sería "independiente".
 
-
-![Ejemplo](./fotoejemplo.png)
+<p align="center">
+  <img src="./fotoejemplo.png" alt="Ejemplo" width="400"/>
+</p>
